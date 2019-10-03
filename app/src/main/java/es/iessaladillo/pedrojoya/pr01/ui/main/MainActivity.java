@@ -5,11 +5,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.text.DecimalFormat;
 
 import es.iessaladillo.pedrojoya.pr01.R;
 import es.iessaladillo.pedrojoya.pr01.bmi.BmiCalculator;
@@ -47,13 +44,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void calculatorButtonListener() {
-        if (validateInput()) {
-            float weight = (float) Double.parseDouble(String.valueOf(txtWeight.getText()));
-            float height = (float) Double.parseDouble(String.valueOf(txtHeight.getText()));
-            if (isNotZero(weight, height)) {
-                calculateMass(weight, height);
-            }
+        float weight = validateInput(txtWeight, getString(R.string.main_invalid_weight));
+        float height = validateInput(txtHeight, getString(R.string.main_invalid_height));
+        if (weight > 0 && height > 0){
+            calculateMass(weight, height);
         }
+    }
+
+    private float validateInput(EditText txt, String errorText) {
+        float num;
+        if (String.valueOf(txt.getText()).equals("") || String.valueOf(txt.getText()).equals(".")) {
+            txt.setError(errorText);
+            txt.requestFocus();
+            return -1;
+        }
+        num = Float.parseFloat(String.valueOf(txt.getText()));
+        if (num <= 0) {
+            txt.setError(errorText);
+            txt.requestFocus();
+            return -1;
+        }
+        return num;
     }
 
     private void calculateMass(float weight, float height) {
@@ -85,35 +96,8 @@ public class MainActivity extends AppCompatActivity {
                 imgBmi.setImageResource(R.drawable.obesity3);
                 break;
         }
-
         lblResult.setText(String.format(getString(R.string.main_bmi), result, type));
         SoftInputUtils.hideKeyboard(this.btnCalculate);
-    }
-
-    private boolean validateInput() {
-        boolean validate = true;
-        if (String.valueOf(txtWeight.getText()).equals("") || String.valueOf(txtWeight.getText()).equals(".")) {
-            txtWeight.setError(String.format(getString(R.string.main_invalid_weight), "empty"));
-            validate = false;
-        }
-        if (String.valueOf(txtHeight.getText()).equals("") || String.valueOf(txtHeight.getText()).equals(".")) {
-            txtHeight.setError(String.format(getString(R.string.main_invalid_height), "empty"));
-            validate = false;
-        }
-        return validate;
-    }
-
-    private boolean isNotZero(float weight, float height) {
-        boolean validate = true;
-        if (weight == 0) {
-            txtWeight.setError(String.format(getString(R.string.main_invalid_weight), "zero"));
-            validate = false;
-        }
-        if (height == 0) {
-            txtHeight.setError(String.format(getString(R.string.main_invalid_height), "zero"));
-            validate = false;
-        }
-        return validate;
     }
 
     private void resetButtonListener() {
